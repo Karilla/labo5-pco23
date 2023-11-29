@@ -14,9 +14,9 @@
 #include <iostream>
 
 PcoSalon::PcoSalon(GraphicSalonInterface *interface, unsigned int capacity)
-    : _interface(interface)
+    : _interface(interface), isSleeping(false)
 {
-    // TODO
+
 }
 
 /********************************************
@@ -29,6 +29,7 @@ unsigned int PcoSalon::getNbClient()
 
 bool PcoSalon::accessSalon(unsigned clientId)
 {
+    walkAround(clientId);
     // TODO
 }
 
