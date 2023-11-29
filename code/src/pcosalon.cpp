@@ -14,7 +14,7 @@
 #include <iostream>
 
 PcoSalon::PcoSalon(GraphicSalonInterface *interface, unsigned int capacity)
-    : _interface(interface), isSleeping(false)
+    : _interface(interface)
 {
 
 }
@@ -24,34 +24,41 @@ PcoSalon::PcoSalon(GraphicSalonInterface *interface, unsigned int capacity)
  *******************************************/
 unsigned int PcoSalon::getNbClient()
 {
-    // TODO
+    return 1;
 }
 
 bool PcoSalon::accessSalon(unsigned clientId)
 {
-    walkAround(clientId);
+    animationClientAccessEntrance(clientId);
+    animationClientSitOnChair(clientId,1);
     // TODO
+    return true;
 }
 
 
 void PcoSalon::goForHairCut(unsigned clientId)
 {
+    animationClientSitOnWorkChair(clientId);
+
     // TODO
 }
 
 void PcoSalon::waitingForHairToGrow(unsigned clientId)
 {
+    animationClientWaitForHairToGrow(clientId);
     // TODO
 }
 
 
 void PcoSalon::walkAround(unsigned clientId)
 {
+    animationClientWalkAround(clientId);
     // TODO
 }
 
 
 void PcoSalon::goHome(unsigned clientId){
+    animationClientGoHome(clientId);
     // TODO
 }
 
@@ -61,13 +68,15 @@ void PcoSalon::goHome(unsigned clientId){
  *******************************************/
 void PcoSalon::goToSleep()
 {
-    // TODO
+    // TODOQT DE SWES MORT
+    animationBarberGoToSleep();
 }
 
 
 void PcoSalon::pickNextClient()
 {
     // TODO
+
 }
 
 
@@ -80,6 +89,9 @@ void PcoSalon::waitClientAtChair()
 void PcoSalon::beautifyClient()
 {
     // TODO
+
+
+    animationBarberCuttingHair();
 }
 
 /********************************************
@@ -87,6 +99,7 @@ void PcoSalon::beautifyClient()
  *******************************************/
 bool PcoSalon::isInService()
 {
+    return true;
     // TODO
 }
 

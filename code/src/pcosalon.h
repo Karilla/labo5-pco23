@@ -99,14 +99,6 @@ public:
      */
     void endService() override;
 
-    /**
-     * @brief isSleeping permet de savoir si le barbier fait dodo
-     * @return retourne vrai si le barbier dort
-     */
-    bool isSleeping(){
-        return isSleeping();
-    }
-
 protected:
     /*!
      * \brief animationClientAccessEntrance déclenche l'animation du client qui
@@ -176,7 +168,6 @@ protected:
 
     PcoMutex _mutex;
     
-    bool isSleeping;
 };
 
 #endif // PCOSALON_H
