@@ -29,37 +29,66 @@ unsigned int PcoSalon::getNbClient()
 
 bool PcoSalon::accessSalon(unsigned clientId)
 {
-    animationClientAccessEntrance(clientId);
-    animationClientSitOnChair(clientId,1);
-    // TODO
-    return true;
+    _mutex.lock();
+    if(nbWaitingHaircut >= NB_SEATS){
+
+        animationClientAccessEntrance(clientId);
+        // gérer la répartition sur les chaises
+        animationClientSitOnChair(clientId,1);
+        _mutex.unlock();
+        return true;
+    }
+
+    _mutex.unlock();
+    return false;
 }
 
 
 void PcoSalon::goForHairCut(unsigned clientId)
 {
-    animationClientSitOnWorkChair(clientId);
+    _mutex.lock();
+    if(barberOccupied){
 
-    // TODO
+        nbWaitingHaircut++;
+        canGoForHaircut.wait(&_mutex);
+        nbWaitingHaircut--;
+
+    }
+
+    if(nbWaitingAccess > 0){
+        canAccessSalon.notifyOne();
+    }
+    animationClientSitOnWorkChair(clientId);
+    _mutex.unlock();
 }
 
 void PcoSalon::waitingForHairToGrow(unsigned clientId)
 {
+    _mutex.lock();
     animationClientWaitForHairToGrow(clientId);
-    // TODO
+    _mutex.unlock();
 }
 
 
 void PcoSalon::walkAround(unsigned clientId)
 {
+    _mutex.lock();
+    nbWaitingAccess++;
     animationClientWalkAround(clientId);
-    // TODO
+    canAccessSalon.wait(&_mutex);
+    nbWaitingAccess--;
+    _mutex.unlock();
 }
 
 
 void PcoSalon::goHome(unsigned clientId){
+
+    _mutex.lock();
+    if(nbWaitingHaircut > 0){
+       canGoForHaircut.notifyOne();
+    }
     animationClientGoHome(clientId);
-    // TODO
+    _mutex.unlock();
 }
 
 
@@ -68,30 +97,32 @@ void PcoSalon::goHome(unsigned clientId){
  *******************************************/
 void PcoSalon::goToSleep()
 {
-    // TODOQT DE SWES MORT
+    _mutex.lock();
+    isBarberSleeping = true;
     animationBarberGoToSleep();
+    _mutex.unlock();
 }
 
 
 void PcoSalon::pickNextClient()
 {
-    // TODO
-
+    _mutex.lock();
+    canGoForHaircut.notifyOne();
+    _mutex.unlock();
 }
 
 
 void PcoSalon::waitClientAtChair()
 {
-    // TODO
+
 }
 
 
 void PcoSalon::beautifyClient()
 {
-    // TODO
-
-
+    _mutex.lock();
     animationBarberCuttingHair();
+    _mutex.unlock();
 }
 
 /********************************************

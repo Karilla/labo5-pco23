@@ -167,7 +167,14 @@ protected:
     GraphicSalonInterface *_interface;
 
     PcoMutex _mutex;
+
+    PcoConditionVariable canAccessSalon, canGoForHaircut, hasHairGrown, barberSleeping;
+
+    bool barberOccupied, isBarberSleeping;
+
+    unsigned int nbWaitingAccess, nbWaitingHaircut, nbWaitingHairGrow;
     
+    unsigned int const NB_SEATS = 2;
 };
 
 #endif // PCOSALON_H
