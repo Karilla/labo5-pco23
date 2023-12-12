@@ -21,12 +21,12 @@ Barber::Barber(GraphicSalonInterface *interface, std::shared_ptr<SalonBarberInte
 void Barber::run()
 {
     while(_salon->isInService()){
+
         if(_salon->getNbClient() == 0){
             _salon->goToSleep();
         }
-        else{
-            _salon->pickNextClient();
-        }
+
+        _salon->pickNextClient();
 
         _salon->waitClientAtChair();
 

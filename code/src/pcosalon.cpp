@@ -12,11 +12,12 @@
 #include <pcosynchro/pcothread.h>
 
 #include <iostream>
+#include <algorithm>
 
 PcoSalon::PcoSalon(GraphicSalonInterface *interface, unsigned int capacity)
-    : _interface(interface)
+    : _interface(interface), nbWaitingAccess(0), nbWaitingHaircut(0), barberOccupied(false), isBarberSleeping(false)
 {
-
+    chairs.fill(false, NB_SEATS);
 }
 
 /********************************************
@@ -24,41 +25,57 @@ PcoSalon::PcoSalon(GraphicSalonInterface *interface, unsigned int capacity)
  *******************************************/
 unsigned int PcoSalon::getNbClient()
 {
-    return 1;
+    return nbWaitingHaircut;
 }
 
 bool PcoSalon::accessSalon(unsigned clientId)
 {
     _mutex.lock();
+
+    // Si la salle d'attente est pleine
     if(nbWaitingHaircut >= NB_SEATS){
 
-        animationClientAccessEntrance(clientId);
-        // gérer la répartition sur les chaises
-        animationClientSitOnChair(clientId,1);
         _mutex.unlock();
-        return true;
+        return false;
     }
 
     _mutex.unlock();
-    return false;
+    return true;
+    
 }
 
 
 void PcoSalon::goForHairCut(unsigned clientId)
 {
     _mutex.lock();
-    if(barberOccupied){
 
-        nbWaitingHaircut++;
-        canGoForHaircut.wait(&_mutex);
-        nbWaitingHaircut--;
+    nbWaitingHaircut++;
 
-    }
+    animationClientAccessEntrance(clientId);
+    // gérer la répartition sur les chaises
+    int i = chairs.indexOf(false);
+    chairs[i] = true;
+    animationClientSitOnChair(clientId, i);
+
+    if(isBarberSleeping){
+
+        barberSleeping.notifyOne();
+        isBarberSleeping = false;
+    } 
+
+    canGoForHaircut.wait(&_mutex);
+    nbWaitingHaircut--;
 
     if(nbWaitingAccess > 0){
+        // on libère une place dans la sale d'attente
+        chairs[i] = false;
         canAccessSalon.notifyOne();
     }
+
     animationClientSitOnWorkChair(clientId);
+    waitClient.notifyOne();
+    doneBeautified.wait(&_mutex);
+    barberOccupied = false;
     _mutex.unlock();
 }
 
@@ -84,9 +101,6 @@ void PcoSalon::walkAround(unsigned clientId)
 void PcoSalon::goHome(unsigned clientId){
 
     _mutex.lock();
-    if(nbWaitingHaircut > 0){
-       canGoForHaircut.notifyOne();
-    }
     animationClientGoHome(clientId);
     _mutex.unlock();
 }
@@ -100,6 +114,8 @@ void PcoSalon::goToSleep()
     _mutex.lock();
     isBarberSleeping = true;
     animationBarberGoToSleep();
+    barberSleeping.wait(&_mutex);
+    animationWakeUpBarber();
     _mutex.unlock();
 }
 
@@ -107,21 +123,27 @@ void PcoSalon::goToSleep()
 void PcoSalon::pickNextClient()
 {
     _mutex.lock();
-    canGoForHaircut.notifyOne();
+    if(nbWaitingHaircut > 0){
+       canGoForHaircut.notifyOne();
+    }
     _mutex.unlock();
 }
 
 
 void PcoSalon::waitClientAtChair()
 {
-
+    _mutex.lock();
+    waitClient.wait(&_mutex);
+    _mutex.unlock();
 }
 
 
 void PcoSalon::beautifyClient()
 {
     _mutex.lock();
+    barberOccupied = true;
     animationBarberCuttingHair();
+    doneBeautified.notifyOne();
     _mutex.unlock();
 }
 
