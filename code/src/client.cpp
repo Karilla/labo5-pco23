@@ -25,13 +25,14 @@ void Client::run()
 {
     while(_salon->isInService())
     {
-        while(!_salon->accessSalon(_clientId)){
+        if(!_salon->accessSalon(_clientId)){
             _salon->walkAround(_clientId);
+        } else {
+
+           _salon->goForHairCut(_clientId);
+
+           _salon->waitingForHairToGrow(_clientId);
         }
-
-        _salon->goForHairCut(_clientId);
-
-        _salon->waitingForHairToGrow(_clientId);
 
     }
     // Tschuss mon pote

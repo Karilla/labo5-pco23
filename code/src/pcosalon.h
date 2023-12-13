@@ -168,13 +168,13 @@ protected:
 
     PcoMutex _mutex;
 
-    PcoConditionVariable canAccessSalon, canGoForHaircut, barberSleeping, doneBeautified, waitClient;
+    PcoConditionVariable canGoForHaircut, barberSleeping, doneBeautified, waitClient;
 
-    bool barberOccupied, isBarberSleeping;
+    bool barberOccupied, isBarberSleeping, isOpen;
 
-    unsigned int nbWaitingAccess, nbWaitingHaircut;
+    unsigned int nbWaitingHaircut;
     
-    unsigned int const NB_SEATS = 2;
+    unsigned int const nbSeats = 2;
 
     QVector<bool> chairs;
 };
