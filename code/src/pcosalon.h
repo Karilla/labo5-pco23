@@ -168,7 +168,7 @@ protected:
 
     PcoMutex _mutex;
 
-    PcoConditionVariable canGoForHaircut, barberSleeping, doneBeautified, waitClient;
+    PcoConditionVariable canGoForHaircut, barberSleeping, doneBeautified, waitClient, isClosed;
 
     bool barberOccupied, isBarberSleeping, isOpen;
 

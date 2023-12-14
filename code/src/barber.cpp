@@ -20,7 +20,7 @@ Barber::Barber(GraphicSalonInterface *interface, std::shared_ptr<SalonBarberInte
 
 void Barber::run()
 {
-    while(_salon->isInService()){
+    while(_salon->isInService() or _salon->getNbClient() > 0){
 
         if(_salon->getNbClient() == 0){
             _salon->goToSleep();

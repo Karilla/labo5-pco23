@@ -113,9 +113,14 @@ void PcoSalon::goHome(unsigned clientId) {
  * Méthodes de l'interface pour le barbier  *
  *******************************************/
 void PcoSalon::goToSleep() {
+
+
    _mutex.lock();
-   isBarberSleeping = true;
    _interface->consoleAppendTextBarber("Je vais faire une sieste!");
+   if(!isOpen){
+      isClosed.notifyOne();
+   }
+   isBarberSleeping = true;
    animationBarberGoToSleep();
    barberSleeping.wait(&_mutex);
    animationWakeUpBarber();
@@ -161,12 +166,12 @@ bool PcoSalon::isInService() {
 
 void PcoSalon::endService() {
 
-   _interface->consoleAppendTextBarber("La salon ferme, plus de nouveaux clients!");
+   _mutex.lock();
+   _interface->consoleAppendTextBarber("La salon va fermer, plus de nouveaux clients!");
    isOpen = false;
-   // Remplacer par une PCOConditionVariable
-   while(nbWaitingHaircut != 0){
-
-   }
+   isClosed.wait(&_mutex);
+   _interface->consoleAppendTextBarber("J'ai enfin fini ma journée.");
+   _mutex.unlock();
 }
 
 /********************************************
