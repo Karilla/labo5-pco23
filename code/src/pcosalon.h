@@ -172,9 +172,9 @@ protected:
 
     bool barberOccupied, isBarberSleeping, isOpen;
 
-    unsigned int nbWaitingHaircut;
+    unsigned int nbWaitingHaircut, nextClient, ticketMachine;
     
-    unsigned int const nbSeats = 2;
+    unsigned int const nbSeats;
 
     QVector<bool> chairs;
 };
