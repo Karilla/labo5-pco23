@@ -1,11 +1,11 @@
-/*  _____   _____ ____    ___   ___ ___  ____
- * |  __ \ / ____/ __ \  |__ \ / _ \__ \|___ \
- * | |__) | |   | |  | |    ) | | | | ) | __) |
- * |  ___/| |   | |  | |   / /| | | |/ / |__ <
- * | |    | |___| |__| |  / /_| |_| / /_ ___) |
- * |_|     \_____\____/  |____|\___/____|____/
- */
-// Modifications à faire dans le fichier
+/**
+\file pcosalon.cpp
+\author Benoit Delay, Eva Ray
+\date 14.12.2023
+
+Ce fichier contient l'implémentation de la classe PcoSalon, qui permet de définir les fonctionnalités d'un salon de
+coiffure concernant des clients et un barbier. Elle contient aussi des animations associées à ces fonctionnalités.
+*/
 
 #include "pcosalon.h"
 

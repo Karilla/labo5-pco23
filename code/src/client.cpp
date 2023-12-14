@@ -1,11 +1,11 @@
-/*  _____   _____ ____    ___   ___ ___  ____
- * |  __ \ / ____/ __ \  |__ \ / _ \__ \|___ \
- * | |__) | |   | |  | |    ) | | | | ) | __) |
- * |  ___/| |   | |  | |   / /| | | |/ / |__ <
- * | |    | |___| |__| |  / /_| |_| / /_ ___) |
- * |_|     \_____\____/  |____|\___/____|____/
- */
-// Modifications à faire dans le fichier
+/**
+\file client.cpp
+\author Benoit Delay, Eva Ray
+\date 14.12.2023
+
+Ce fichier contient l'implémentation de la classe Client, qui permet de
+défnir le comportement d'un client d'un salon de coiffure.
+*/
 
 #include "client.h"
 #include <unistd.h>
