@@ -41,7 +41,7 @@ La terminaison du programme est gérée grâce aux méthodes \texttt{PcoSalon::e
 La fin du programme
 est innitiée dès qu'une entrée utilisateur est déclenchée dans le terminal. Le salon est alors fermé. Les clients qui ne se trouvent pas
 actuellement dans le salon rentrent chez eux. Le barbier finit de s'occuper de tous les clients qui sont encore dans le salon mais n'en
-accepte pas de nouveau. Une fois qu'il a terminé son travail, il part dormir et termine sa journée. \\
+accepte pas de nouveau. Une fois qu'il a terminé son travail, ferme le salon et termine sa journée. \\
 
 Le logiciel simule le comportement du barbier et des clients par des threads différents, il est donc multi-threadé. Par conséquent, il doit 
 assurer une bonne gestion de la concurrence pour les ressources partagées entre plusieurs threads. Les méthodes du salon sont ainsi implémentées 
@@ -70,9 +70,70 @@ assurer une bonne gestion de la concurrence pour les ressources partagées entre
 
 \subsection*{Variables de condition}
 
+La synchronisation entre les différents threads du programme se fait via des variables de condition qui sont des attributs
+protégés de la classe \texttt{PcoSalon}.
+
+\begin{itemize}
+    \item \texttt{canGoForHaircut}: La variable de condition \texttt{canGoForHaircut} représente l'attente d'un client sur une des chaises 
+    de la salle d'attente avant de pouvoir aller se faire couper les cheveux. Les threads des clients attendent sur cette variable de 
+    condition dans la méthode \texttt{PcoSalon::accessSalon} et le barbier réveille les threads des clients en attente depuis la méthode 
+    \texttt{PcoSalon::pickNextClient}.
+    \item \texttt{waitClient}: La variable de condition \texttt{wairClient} représente le fait que le barbier attente qu'un client se déplace
+    de la salle d'attente à la chaise de travail. Le thread du barbier attent sur cette variable de condition dans la méthode \texttt{PcoSalon::waitClientAtChair} et le 
+    client signifie qu'il a atteint la chaise de travail dans la méthode \texttt{PcoSalon::goForHaircut}.
+    \item \texttt{doneBeautified}: La variable de condition \texttt{doneBeautified} représente le fait qu'un client attendre que sa coupe de
+    cheveux se termine. Le thread du client attent sur cette variable de condition dans la méthode \texttt{PcoSalon::goForHaircut} et le 
+    barbier signifie au client qu'il a finit la coupe dans la méthode \\ \texttt{PcoSalon::beautifyClient}. 
+    \item \texttt{barberSleeping}: La variable de condition \texttt{barberSleeping} représente le sommeil du barbier. Le thread du barbier attent sur cette variable 
+    de condition dans la méthode \texttt{PcoSalon::goToSleep} pour représenter la fait que le barbier s'endort. Le 
+    client signifie que le barbier doit se réveiller dans la méthode \\ \texttt{PcoSalon::accessSalon}.
+\end{itemize}
+
+\subsection*{Gestion de la file FIFO}
+
+Une des fonctionnalités du programme est d'assurer le fait que le barbier s'occupe des clients dans leur ordre d'arrivée dans le salon. Pour ce faire,
+nous avons implémenter une file FIFO avec une méthode de ticketing. L'idée est simple; chaque client qui arrive dans la salle d'attente prend un ticket à
+la machine à tickets, représentée par l'attribut \texttt{ticketMachine} de la classe \texttt{PcoSalon}. Il attend ensuite sur la variable de condition 
+\texttt{canGoForHaircut}. Lorsqu'il est prêt, le barbier va \texttt{notifyALL} sur cette variable, ce qui va avoir pour conséquence de réveiller tous les 
+threads en attente. A ce moment, le client réveillé va comparer son numéro de ticket avec celui stocké dans l'attribut \texttt{nextClient} de la 
+classe \texttt{PcoSalon} qui représente le numéro du prochain client à pouvoir aller se faire couper les cheveux. Si les numéros coïncident, le client
+peut aller se faire couper les cheveux et l'attribut \texttt{nextClient} est incérmenté, sinon, il se remet en attente jusqu'à ce que ce soit son tour.  
+
+\subsection*{Gestion de l'interruption du programme}
+
+La terminaison du programme est amorcée lorsqu'une entrée utilisateur est déclenchée dans le terminal. Elle est gérée grâce aux méthodes 
+\texttt{PcoSalon::endService()} et \texttt{PcoSalon::isInService()}. Nous avons ajouté un attribut booléen \texttt{isOpen} dans la classe \texttt{PcoSalon} 
+qui vaut \texttt{true} lorsque le salon est ouvert et \texttt{false} sinon. La méthode \texttt{PcoSalon::isInService()} renvoie simplement cet attirbut. Elle nous
+permet de connaître l'état d'ouverture du salon depuis l'extérieur de la classe. Dans la méthode \texttt{PcoSalon::endService()} on change la valeur de 
+\texttt{isOpen} à \texttt{false} pour informer de la fermeture du salon. On s'assure aussi de gérer le cas dans lequel la fermeture du salon est 
+déclenchée lorsque le barbier est en train de dormir. Dans ce cas, on réveille le barbier pour que son thread puisse se finir et ne pas rester en 
+attente indéfiniment sur la variable de condition \texttt{barberSleeping}. 
+On s'assure ensuite dans la méthode \texttt{Barber::run} du barbier qu'il s'occupe des clients qui sont étaient déjà présents dans la salon avant la
+fermeture avant que son thread ne s'arrête pour de bon. Cela est mis en place grâce aux méthodes \texttt{PcoSalon::isInService()} et
+\texttt{PcoSalon::getNbClient()}. Les clients attendent encore que leur cheveux repoussent avant de se rendre compte que le salon est fermé et rentrer 
+chez eux pour de bon.
+
 \section*{Tests effectués}
 % Description de chaque test, et information sur le fait qu'il ait passé ou non
 
+Le résultat des tests ci-dessus a notamment pu être vérifié car nous logons dans l'interface graphique des informations sur la plupart des 
+actions entreprises par le barbier et les clients. 
+
+\subsection*{Test: Fonctionnalités du salon}
+
+\begin{itemize}
+    \item 
+\end{itemize}
+
+\subsection*{Test: Terminaison du programme}
+
 \section*{Conclusion}
+
+Nous avons implémenté un programme multi-threadé qui simule un salon de coiffure conformément au cahier des charges. Nous avons implémenté une
+gestion de la synchronisation grâce à des variables de condition d'un moniteur de Mesa qui semblent faire leur travail convenablement. 
+L'accès des clients au salon, l'attente dans la salle d'attente, la prise en charge des clients, la coupe, la repouss des cheveux et le 
+sommeil du barbier sont gérés correctement.
+L'innitation de la fin de programme par le déclenchement d'une entrée utilisateur dans le terminal fonctionne comme espéré et permet de 
+mettre fin aux threads de la simulation correctement.
 
 \end{document}
