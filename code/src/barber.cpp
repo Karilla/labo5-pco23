@@ -20,18 +20,28 @@ Barber::Barber(GraphicSalonInterface *interface, std::shared_ptr<SalonBarberInte
 
 void Barber::run()
 {
-    while(_salon->isInService() or _salon->getNbClient() > 0){
+    while(_salon->isInService() or _salon->getNbClient() >= 0){
 
+       // Si il n'y a aucun client, le barbier va dormir
         if(_salon->getNbClient() == 0){
+           // Si le salon est fermé, c'est la fin de journée pour le barbier, il s'est occupé de tous les clients
+           if(!_salon->isInService()){
+              break;
+           }
             _salon->goToSleep();
         }
 
-        _salon->pickNextClient();
+        if(_salon->getNbClient() > 0){
+           // Le barbier appelle le prochain client
+           _salon->pickNextClient();
 
-        _salon->waitClientAtChair();
+           // Le barbier attend que le client arrive sur la chaise de travail
+           _salon->waitClientAtChair();
 
-        _salon->beautifyClient();
+           // Le barbier coupe les cheveux du client
+           _salon->beautifyClient();
+        }
     }
-    _salon->goToSleep();
+    // Le barbier a fini sa journée
     _interface->consoleAppendTextBarber("La journée est terminée, à demain !");
 }

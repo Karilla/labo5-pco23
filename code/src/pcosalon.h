@@ -166,16 +166,57 @@ protected:
 protected:
     GraphicSalonInterface *_interface;
 
+    /*
+     * Le mutex qui nous permet d'assurer la protection des ressources partagée pour une instance de la classe
+     */
     PcoMutex _mutex;
 
-    PcoConditionVariable canGoForHaircut, barberSleeping, doneBeautified, waitClient, isClosed;
+    /*
+     * Les variables de condition du moniteur de Mesa
+     */
+    PcoConditionVariable canGoForHaircut, barberSleeping, doneBeautified, waitClient;
 
-    bool barberOccupied, isBarberSleeping, isOpen;
+    /*
+     * Booléen qui vaut true si le barbier est en train de dormir
+     */
+    bool isBarberSleeping;
 
-    unsigned int nbWaitingHaircut, nextClient, ticketMachine;
-    
+    /*
+     * Booléen qui vaut true si le salon est ouvert
+     */
+    bool isOpen;
+
+    /*
+     * Booléen qui vaut true si le premier client dont le barbier s'occupe après son réveil est encore en train
+     * d'attendre à la porte
+     */
+    bool clientWaitingAtDoor;
+
+    /*
+     * Nombre de clients qui attendent une coupe dans la salle d'attente
+     */
+    unsigned int nbWaitingHaircut;
+
+    /*
+     * Le numéro du prochain ticket donné par la machine qui représente le numéro du client dans la file d'attente
+     * depuis le lancement du salon
+     */
+    unsigned int ticketMachine;
+
+    /*
+     * Le numéro du ticket du prochain client qui va pouvoir aller se faire couper les cheveux
+     */
+    unsigned int nextClient;
+
+    /*
+     * Nombre de siège dans la salle d'attente
+     */
     unsigned int const nbSeats;
 
+    /*
+     * Vecteur de booléen qui représente l'occupation des chaises de la salle d'attente. Le bool à l'indice i est
+     * true si la chaise i est occupée, false si elle est libre.
+     */
     QVector<bool> chairs;
 };
 

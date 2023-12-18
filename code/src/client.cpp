@@ -25,17 +25,20 @@ void Client::run()
 {
     while(_salon->isInService())
     {
+       // Si le client ne peut pas acéder au salon il va faire un tour
         if(!_salon->accessSalon(_clientId)){
             _salon->walkAround(_clientId);
         } else {
 
+           // Le client va se faire couper les cheveux
            _salon->goForHairCut(_clientId);
 
+           // Le client attend que ses cheveux repoussent
            _salon->waitingForHairToGrow(_clientId);
         }
 
     }
-    // Tschuss mon pote
+    // Le client rentre chez lui
     _salon->goHome(_clientId);
-    _interface->consoleAppendTextClient(_clientId, "Le salon est fermé... Zut !");
+   _interface->consoleAppendTextClient(_clientId, "Je rentre chez moi pour aujourd'hui.");
 }
