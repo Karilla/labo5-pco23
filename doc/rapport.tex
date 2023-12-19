@@ -120,6 +120,17 @@ fermeture avant que son thread ne s'arrête pour de bon. Cela est mis en place g
 \texttt{PcoSalon::getNbClient()}. Les clients attendent encore que leur cheveux repoussent avant de se rendre compte que le salon est fermé et rentrer 
 chez eux pour de bon.
 
+\subsection*{Autres choix}
+
+\begin{itemize}
+    \item Nous sommes partis du principe que le client qui réveille le barbier ne va pas s'asseoir dans la salle d'attente mais attend
+    à la porte que le barbier ait atteint la chaise de travail avant de l'y rejoindre.
+    \item Nous avons traité le cas où il n'y a aucune chaise dans la salle d'attente. Dans ce cas, le client qui arrive à la porte 
+    réveille le barbier, attend à la porte que le barbier ait atteint la chaise de travail avant de l'y rejoindre. Le barbier va aller
+    dormir entre chaque client, puisqu'il n'y a techniquement aucun client dans le salon dans cette situation. L'attribut booléen 
+    \texttt{clientWaitingAtDoor} de la classe \texttt{PcoSalon} nous permet de gérer ce cas particulier en le mettant à jour correctement. 
+\end{itemize}
+
 \section*{Tests effectués}
 % Description de chaque test, et information sur le fait qu'il ait passé ou non
 
@@ -151,7 +162,7 @@ Les tests suivants ont été effectués avec les paramètres par défaut, c'est-
     de travail. C'est le comportement attendu.
     \item Lorsque le barbier est en train de faire une coupe, aucun autre client ne peut se diriger vers la chaise de travail tant 
     qu'il n'a pas fini. C'est le comportement attendu.
-    \item Lorsque le client a une nouvelle coupe, il quitte le salon est attend que ses cheveux repoussent avant d'essayer d'accéder 
+    \item Lorsque le client a une nouvelle coupe, il quitte le salon et attend que ses cheveux repoussent avant d'essayer d'accéder 
     à nouveau au salon.
 \end{itemize}
 
@@ -178,10 +189,11 @@ Les tests suivants ont été réalisés en modifiant les paramètres par défaut
 \subsection*{Test: Terminaison du programme}
 
 La fin des threads peut être vérifiée car un message est logé dans l'interface graphique dans les cases réservées aux clients et au barbier. 
-Un message signifiant la terminaison du programme apparait 
+Un message signifiant la terminaison du programme (qui était déjà présent lorsque nous avons reçu le squelette du labo) apparait aussi 
+dans le terminal.
 
 \begin{itemize}
-    \item Lorsque le babrier est en train de travailler et une entrée utilisateur est déclenchée dans la console, plus aucun nouveau client
+    \item Lorsque le barbier est en train de travailler et une entrée utilisateur est déclenchée dans la console, plus aucun nouveau client
     ne rentre dans le salon, le barbier finit de s'occuper du client qui est actuellement sur la chaise de travail et de ceux qui sont
     en train d'attendre dans la salle d'attente avant que son thread se finissent. Le thread des clients qui n'étaient pas dans le salon au 
     moment de la terminaison du programme se finit dès que les clients constatent que le salon est fermé. Les clients qui étaient dans le
@@ -190,6 +202,8 @@ Un message signifiant la terminaison du programme apparait
     C'est le comportement attendu.
     \item Lorsque le barbier est en train de dormir et une entrée utilisateur est déclenchée dans la console, il se réveille pour que son
     thread puisse se terminer. Le message "le programme est terminé" apparait dans la console. C'est le comportement attendu.
+    \item Lorsqu'une entrée utilisateur est déclenchée alors que le barbier est en train d'attendre que le client arrive à la chaise de travail
+    le programme se termine comme attendu. 
 \end{itemize}
 
 \section*{Conclusion}

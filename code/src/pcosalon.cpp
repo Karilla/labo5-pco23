@@ -84,7 +84,7 @@ void PcoSalon::goForHairCut(unsigned clientId) {
    _mutex.lock();
    _interface->consoleAppendTextClient(clientId, "Je vais sur la chaise pour me faire couper les cheveux.");
    animationClientSitOnWorkChair(clientId);
-   // Si le client n'est pas le premier après le réveil du barbier
+   // Si le client n'est pas le premier après le réveil du barbier, une place se libère dans la salle d'attente
    if (!clientWaitingAtDoor) {
       nbWaitingHaircut--;
    }
