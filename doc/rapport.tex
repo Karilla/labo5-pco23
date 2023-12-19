@@ -89,6 +89,13 @@ protégés de la classe \texttt{PcoSalon}.
     client signifie que le barbier doit se réveiller dans la méthode \\ \texttt{PcoSalon::accessSalon}.
 \end{itemize}
 
+\subsection*{Gestion des chaises de la salle d'attente}
+Pour gérer les chaises de la salle d'attente, nous avons ajouté un attribut \texttt{chairs} dans la classe \texttt{PcoSalon}. C'est
+simplement un vecteur de booléens qui a pour taille le nombre de chaises de la salle d'attente. Si le booléen contenu à l'indice i
+vaut \texttt{false} cela signifie que la chaise numéro i est libre, s'il vaut \texttt{true} cela signifie que la chaise est occupée.
+Dans la méthode \texttt{PcoSalon::accessSalon}, on assigne une chaise libre au client qui doit aller s'asseoir dans la salle d'attente,
+elle devient alors occupée. Lorsque le client se déplace sur la chaise de travail, on libère la chaise sur laquelle il était assis.   
+
 \subsection*{Gestion de la file FIFO}
 
 Une des fonctionnalités du programme est d'assurer le fait que le barbier s'occupe des clients dans leur ordre d'arrivée dans le salon. Pour ce faire,
@@ -117,15 +124,73 @@ chez eux pour de bon.
 % Description de chaque test, et information sur le fait qu'il ait passé ou non
 
 Le résultat des tests ci-dessus a notamment pu être vérifié car nous logons dans l'interface graphique des informations sur la plupart des 
-actions entreprises par le barbier et les clients. 
+actions entreprises par le barbier et les clients. En particulier, en plus de décrire leur comportement, un message s'affiche lorsque
+les threads des clients ou du barbier se finissent.
 
 \subsection*{Test: Fonctionnalités du salon}
 
+\subsubsection*{Paramètres par défaut}
+
+Les tests suivants ont été effectués avec les paramètres par défaut, c'est-à-dire avec 10 clients et 2 sièges dans la salle d'attente
+
 \begin{itemize}
-    \item 
+    \item Lorsqu'un client souhaite accéder au salon et que le barbier est en train de dormir, le barbier se réveille et se déplace
+    vers la chaise de travail. Le client attend sur le pas de la porte que le barbier soit arrivé à la chaise et l'y rejoint lorsque
+    c'est le cas. C'est le comportement attendu.
+    \item Lorsqu'un client souhaite accéder au salon alors que le barbier est déjà réveillé et qu'il y a de la place dans la 
+    salle d'attente, le client va s'asseoir sur une chaise libre de la salle d'attente et attend son tour. 
+    C'est le comportement attendu.
+    \item Lorsqu'un client souhaite accéder au salon alors que le barbier est déjà réveillé et qu'il n'y a pas de place dans la 
+    salle d'attente, le client ne peut pas accéder au salon et va faire un tour avant de rententer sa chance. 
+    C'est le comportement attendu.
+    \item Lorsqu'il n'y a plus aucun client dans le salon, le barbier va faire une sieste. C'est le comportement attendu.
+    \item Lorsqu'on lance le programme, le barbier commence toujours par aller faire une sieste. C'est le comportement attendu.
+    \item Lorsque le barbier appelle le prochain client, il attend que le client arrive sur la chaise de travail avant de commencer la coupe.
+    C'est le comportement attendu.
+    \item Lorsque le barbier appelle le prochain client, c'est le client qui est arrivé le premier dans le salon qui se dirige vers la chaise
+    de travail. C'est le comportement attendu.
+    \item Lorsque le barbier est en train de faire une coupe, aucun autre client ne peut se diriger vers la chaise de travail tant 
+    qu'il n'a pas fini. C'est le comportement attendu.
+    \item Lorsque le client a une nouvelle coupe, il quitte le salon est attend que ses cheveux repoussent avant d'essayer d'accéder 
+    à nouveau au salon.
+\end{itemize}
+
+\subsubsection*{Variation des paramètres}
+
+Les tests suivants ont été réalisés en modifiant les paramètres par défaut pour tester la robustesse du programme.
+
+\begin{itemize}
+    \item Lorsqu'il n'y a aucun siège dans la salle d'attente, le client va toujours devoir réveiller le barbier et attendre à la porte.
+    Lorsque le barbier a fini la coupe du client, il repart tout de suite dormir avant de se faire rapidement réveiller par le prochain
+    client qui attend à la porte. C'est le comportement attendu. 
+    \item Lorsqu'il n'y a qu'un seul client et 2 (ou un autre nombre non nul) de sièges dans la salle d'attente, le client réveille
+    le barbier et attend à la porte. Le client ne va pas attendre dans la salle d'attente mais reste à la porte. Entre chaque coupe de 
+    l'unique client, le barbier va dormir. C'est le comportement attendu.
+    \item Lorsqu'il y a 2 client et 2 sièges dans la salle d'attente (c'est-à-dire autant de clienst que de chaises), le programme se 
+    déroule conformément au cahier des charges. C'est le comportement attendu.
+    \item Lorsqu'il n'y a aucun client, le babrier va dormir et ne se réveille jamais. C'est le comportement attendu. 
+    \item Lorsqu'il y a plus de 2 chaises dans la salle d'attente et 10 clients, les clients s'asseyent toujours sur une chaise libre et 
+    sont toujours appelés par le barbier dans leur ordre d'arrivée. C'est le comportement attendu.
+    \item Lorsqu'un met 20 clients et 2 chaises dans la salle d'attente, le programme se déroule conformément au cahier des charges.
+    C'est le comportement attendu.
 \end{itemize}
 
 \subsection*{Test: Terminaison du programme}
+
+La fin des threads peut être vérifiée car un message est logé dans l'interface graphique dans les cases réservées aux clients et au barbier. 
+Un message signifiant la terminaison du programme apparait 
+
+\begin{itemize}
+    \item Lorsque le babrier est en train de travailler et une entrée utilisateur est déclenchée dans la console, plus aucun nouveau client
+    ne rentre dans le salon, le barbier finit de s'occuper du client qui est actuellement sur la chaise de travail et de ceux qui sont
+    en train d'attendre dans la salle d'attente avant que son thread se finissent. Le thread des clients qui n'étaient pas dans le salon au 
+    moment de la terminaison du programme se finit dès que les clients constatent que le salon est fermé. Les clients qui étaient dans le
+    salon au moment de la fermeture quittent le salon lorsque leur coupe est terminée et attendent encore une fois que leur cheveux repoussent
+    avant que leur thread s'arrête lorsqu'ils constatent que le salon est fermé. Le message "le programme est terminé" apparait dans la console.
+    C'est le comportement attendu.
+    \item Lorsque le barbier est en train de dormir et une entrée utilisateur est déclenchée dans la console, il se réveille pour que son
+    thread puisse se terminer. Le message "le programme est terminé" apparait dans la console. C'est le comportement attendu.
+\end{itemize}
 
 \section*{Conclusion}
 
